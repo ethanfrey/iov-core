@@ -96,6 +96,8 @@ export class WebsocketClient implements RpcStreamingClient {
   }
 
   private reconnectedHandler(): void {
+    console.log("RECONNECTED");
     this.producers.forEach(producer => producer.reconnect());
+    console.log(this.subscriptionStreams);
   }
 }

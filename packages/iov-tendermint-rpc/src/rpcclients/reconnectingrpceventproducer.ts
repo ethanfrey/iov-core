@@ -35,10 +35,13 @@ export class ReconnectingRpcEventProducer implements Producer<SubscriptionEvent>
   }
 
   public reconnect(): void {
+    console.log("RECONNECTING PRODUCER");
     if (this.running) {
+      console.log("PRODUCER IS RUNNING");
       this.producer.stop();
       this.producer = new RpcEventProducer(this.request, this.socket);
       if (this.listener) {
+        console.log("PRODUCER HAS LISTENER");
         this.producer.start(this.listener);
       }
     }

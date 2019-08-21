@@ -30,6 +30,7 @@ export class RpcEventProducer implements Producer<SubscriptionEvent> {
     this.connectToClient(listener);
 
     this.socket.queueRequest(JSON.stringify(this.request));
+    console.log("STARTED PRODUCER");
   }
 
   /**
@@ -46,6 +47,7 @@ export class RpcEventProducer implements Producer<SubscriptionEvent> {
     try {
       this.socket.queueRequest(JSON.stringify(endRequest));
     } catch (error) {
+      console.log("TRYING TO STOP GOT ERROR", error);
       if (error instanceof Error && error.message.match(/socket has disconnected/i)) {
         // ignore
       } else {
@@ -63,6 +65,7 @@ export class RpcEventProducer implements Producer<SubscriptionEvent> {
       .subscribe({
         next: response => {
           if (isJsonRpcErrorResponse(response)) {
+            console.log("NEXT ID: GOT ERROR, CLOSING SUBS");
             this.closeSubscriptions();
             listener.error(JSON.stringify(response.error));
           }
@@ -78,6 +81,7 @@ export class RpcEventProducer implements Producer<SubscriptionEvent> {
       .subscribe({
         next: response => {
           if (isJsonRpcErrorResponse(response)) {
+            console.log("NEXT ID EVENT: GOT ERROR, CLOSING SUBS");
             this.closeSubscriptions();
             listener.error(JSON.stringify(response.error));
           } else {
@@ -89,10 +93,12 @@ export class RpcEventProducer implements Producer<SubscriptionEvent> {
     // this will fire in case the websocket disconnects cleanly
     const nonResponseSubscription = responseStream.subscribe({
       error: error => {
+        console.log("ERR, CLOSING SUBSCRIPTIONS");
         this.closeSubscriptions();
         listener.error(error);
       },
       complete: () => {
+        console.log("COMPLETE, CLOSING SUBSCRIPTIONS");
         this.closeSubscriptions();
         listener.complete();
       },

@@ -218,11 +218,12 @@ describe("WebsocketClient", () => {
     client.disconnect();
   });
 
-  it("can handle a reconnect", async () => {
+  fit("can handle a reconnect", async () => {
     pendingWithoutTendermint();
     pendingWithoutManual();
 
     const client = new WebsocketClient(tendermintUrl);
+    await client.connected();
 
     const query = "tm.event='NewBlockHeader'";
     const req = createJsonRpcRequest("subscribe", { query: query });
@@ -233,10 +234,16 @@ describe("WebsocketClient", () => {
 
     return new Promise(async (resolve, reject) => {
       headers.subscribe({
-        next: event => receivedEvents.push(event),
+        next: event => {
+          console.log("H:", event);
+          receivedEvents.push(event);
+        },
         error: err => {
           // Subscriptions will not be found if reconnection is performed via new node instances
-          if (JSON.parse(err).data !== "subscription not found") reject(err);
+          if (JSON.parse(err).data !== "subscription not found") {
+            console.log("SUB NOT FOUND");
+            reject(err);
+          }
         },
         complete: reject,
       });
@@ -246,11 +253,11 @@ describe("WebsocketClient", () => {
       const receivedEventsBefore = receivedEvents.length;
       expect(receivedEvents.length).toEqual(receivedEventsBefore);
       console.info("---RECONNECT NOW---");
-      await sleep(20_000);
+      await sleep(10_000);
 
       expect(receivedEvents.length).toBeGreaterThan(receivedEventsBefore);
 
       resolve();
     });
-  }, 45_000);
+  }, 30_000);
 });

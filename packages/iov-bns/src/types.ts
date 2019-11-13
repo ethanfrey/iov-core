@@ -3,6 +3,7 @@ import {
   Algorithm,
   Amount,
   ChainId,
+  Fee,
   isSendTransaction,
   isSwapAbortTransaction,
   isSwapClaimTransaction,

@@ -759,6 +759,8 @@ export class BnsConnection implements AtomicSwapConnection {
 
     // TODO: add query handler to msgfee
     const { results } = await this.query("/", Encoding.toAscii(`msgfee:${path}`));
+    console.log("PATH", path);
+    console.log("RESULTS", results);
     if (results.length > 1) {
       throw new Error(`Unexpected number of results for product fee. Expected: 0/1 Got: ${results.length}`);
     }

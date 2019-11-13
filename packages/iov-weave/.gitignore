@@ -1,0 +1,7 @@
+build/
+dist/
+docs/
+
+# build dirs for creating protobuf definitions
+go/
+testvectors/

@@ -1,0 +1,62 @@
+{
+  "name": "@iov/weave",
+  "version": "1.1.0",
+  "description": "Transaction codec and BCP client to communicate with any weave-based blockchain",
+  "author": "Ethan Frey <ethanfrey@noreply.github.com>",
+  "license": "Apache-2.0",
+  "main": "build/index.js",
+  "types": "types/index.d.ts",
+  "files": [
+    "build/",
+    "types/",
+    "*.md",
+    "!*.spec.*",
+    "!**/testdata/"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/iov-one/iov-core/tree/master/packages/iov-weave"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "docs": "shx rm -rf docs && typedoc --options typedoc.js",
+    "lint": "eslint --max-warnings 0 \"**/*.{js,ts}\" && tslint -t verbose --project .",
+    "format": "prettier --write --loglevel warn \"./src/**/*.ts\"",
+    "format-text": "prettier --write --prose-wrap always --print-width 80 \"./*.md\"",
+    "test-node": "node jasmine-testrunner.js",
+    "test-edge": "yarn pack-web && karma start --single-run --browsers Edge",
+    "test-firefox": "yarn pack-web && karma start --single-run --browsers Firefox",
+    "test-chrome": "yarn pack-web && karma start --single-run --browsers ChromeHeadless",
+    "test-safari": "yarn pack-web && karma start --single-run --browsers Safari",
+    "test": "yarn build-or-skip && yarn test-node",
+    "move-types": "shx rm -r ./types/* && shx mv build/types/* ./types && shx rm ./types/*.spec.d.ts && shx rm ./types/**/*.spec.d.ts",
+    "format-types": "prettier --write --loglevel warn \"./types/**/*.d.ts\"",
+    "build": "shx rm -rf ./build && tsc && shx mkdir -p build/generated && shx cp ./src/generated/*.js ./build/generated && shx mkdir -p ./build/types/generated && shx cp ./src/generated/*.d.ts ./build/types/generated && yarn move-types && yarn format-types",
+    "build-or-skip": "[ -n \"$SKIP_BUILD\" ] || yarn build",
+    "pack-web": "yarn build-or-skip && webpack --mode development --config webpack.web.config.js",
+    "pack-proto": "pbjs -t static-module -w commonjs -o src/generated/codecimpl.js `./scripts/cleaned_protos.sh | sort`",
+    "define-proto": "pbts src/generated/codecimpl.js -o src/generated/codecimpl.d.ts",
+    "store-codec-version": "git -C ./go/src/github.com/iov-one/weave log --pretty=oneline --decorate --max-count=1 > src/generated/codec_version.txt",
+    "protoc": "./scripts/weave.sh && yarn pack-proto && yarn define-proto && yarn format && yarn store-codec-version"
+  },
+  "dependencies": {
+    "@iov/bcp": "^1.1.0",
+    "@iov/crypto": "^1.1.0",
+    "@iov/encoding": "^1.1.0",
+    "@iov/stream": "^1.1.0",
+    "@iov/tendermint-rpc": "^1.1.0",
+    "@types/long": "^4.0.0",
+    "@types/node": "^10.12.18",
+    "bn.js": "^4.11.8",
+    "fast-deep-equal": "^2.0.1",
+    "long": "^4.0.0",
+    "protobufjs": "^6.8.6",
+    "type-tagger": "^1.0.0",
+    "xstream": "^11.10.0"
+  },
+  "devDependencies": {
+    "@iov/keycontrol": "^1.1.0"
+  }
+}

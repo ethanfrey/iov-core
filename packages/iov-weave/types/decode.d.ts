@@ -30,22 +30,25 @@ import { IovBech32Prefix } from "./util";
 export declare function asIntegerNumber(maybeLong: Long | number | null | undefined): number;
 export declare function ensure<T>(maybe: T | null | undefined, msg?: string): T;
 export declare function decodeNumericId(id: Uint8Array): number;
-export declare function decodeUsernameNft(
-  nft: codecImpl.username.IToken & Keyed,
-  registryChainId: ChainId,
-): BnsUsernameNft;
 export declare function decodeNonce(sequence: Long | number | null | undefined): Nonce;
+export declare function decodePubkey(publicKey: codecImpl.crypto.IPublicKey): PubkeyBundle;
+export declare function decodePrivkey(privateKey: codecImpl.crypto.IPrivateKey): PrivkeyBundle;
+export declare function decodeSignature(signature: codecImpl.crypto.ISignature): SignatureBytes;
+export declare function decodeAmount(coin: codecImpl.coin.ICoin): Amount;
+/************* End weave-generic *******************/
+/**** Begin sigs ******/
 export declare function decodeUserData(
   userData: codecImpl.sigs.IUserData,
 ): {
   readonly nonce: Nonce;
 };
-export declare function decodePubkey(publicKey: codecImpl.crypto.IPublicKey): PubkeyBundle;
-export declare function decodePrivkey(privateKey: codecImpl.crypto.IPrivateKey): PrivkeyBundle;
-export declare function decodeSignature(signature: codecImpl.crypto.ISignature): SignatureBytes;
 export declare function decodeFullSig(sig: codecImpl.sigs.IStdSignature): FullSignature;
+/**** End sigs ******/
 export declare function decodeToken(data: codecImpl.currency.ITokenInfo & Keyed): Token;
-export declare function decodeAmount(coin: codecImpl.coin.ICoin): Amount;
+export declare function decodeUsernameNft(
+  nft: codecImpl.username.IToken & Keyed,
+  registryChainId: ChainId,
+): BnsUsernameNft;
 export declare function decodeCashConfiguration(config: codecImpl.cash.IConfiguration): CashConfiguration;
 export declare function decodeParticipants(
   prefix: IovBech32Prefix,

@@ -68,6 +68,9 @@ import { addressPrefix, encodeBnsAddress, IovBech32Prefix } from "./util";
 
 const { fromUtf8 } = Encoding;
 
+/**** These are generic and should be package-independent for all weave *********/
+/*** Begin generic ****/
+
 function decodeString(input: string | null | undefined): string {
   // weave encodes empty strings as null
   return input || "";
@@ -116,32 +119,10 @@ function decodeVersionedIdArray(versionedId: Uint8Array): VersionedId {
   };
 }
 
-function decodeChainAddressPair(pair: codecImpl.username.IBlockchainAddress): ChainAddressPair {
-  return {
-    chainId: ensure(pair.blockchainId, "blockchainId") as ChainId,
-    address: ensure(pair.address, "address") as Address,
-  };
-}
-
-export function decodeUsernameNft(
-  nft: codecImpl.username.IToken & Keyed,
-  registryChainId: ChainId,
-): BnsUsernameNft {
-  const rawOwnerAddress = ensure(nft.owner, "owner");
-  return {
-    id: fromUtf8(nft._id),
-    owner: encodeBnsAddress(addressPrefix(registryChainId), rawOwnerAddress),
-    targets: ensure(nft.targets, "targets").map(decodeChainAddressPair),
-  };
-}
-
 export function decodeNonce(sequence: Long | number | null | undefined): Nonce {
   return asIntegerNumber(sequence) as Nonce;
 }
 
-export function decodeUserData(userData: codecImpl.sigs.IUserData): { readonly nonce: Nonce } {
-  return { nonce: decodeNonce(userData.sequence) };
-}
 
 export function decodePubkey(publicKey: codecImpl.crypto.IPublicKey): PubkeyBundle {
   if (publicKey.ed25519) {
@@ -173,22 +154,6 @@ export function decodeSignature(signature: codecImpl.crypto.ISignature): Signatu
   }
 }
 
-export function decodeFullSig(sig: codecImpl.sigs.IStdSignature): FullSignature {
-  return {
-    nonce: decodeNonce(sig.sequence),
-    pubkey: decodePubkey(ensure(sig.pubkey)),
-    signature: decodeSignature(ensure(sig.signature)),
-  };
-}
-
-export function decodeToken(data: codecImpl.currency.ITokenInfo & Keyed): Token {
-  return {
-    tokenTicker: Encoding.fromAscii(data._id) as TokenTicker,
-    tokenName: ensure(data.name),
-    fractionalDigits: 9, // fixed for all weave tokens
-  };
-}
-
 export function decodeAmount(coin: codecImpl.coin.ICoin): Amount {
   const fractionalDigits = 9; // fixed for all tokens in BNS
 
@@ -217,6 +182,53 @@ export function decodeAmount(coin: codecImpl.coin.ICoin): Amount {
 function isZeroCoin({ whole, fractional }: codecImpl.coin.ICoin): boolean {
   return asIntegerNumber(whole) === 0 && asIntegerNumber(fractional) === 0;
 }
+
+/************* End weave-generic *******************/
+
+/**** Begin sigs ******/
+
+export function decodeUserData(userData: codecImpl.sigs.IUserData): { readonly nonce: Nonce } {
+  return { nonce: decodeNonce(userData.sequence) };
+}
+
+export function decodeFullSig(sig: codecImpl.sigs.IStdSignature): FullSignature {
+  return {
+    nonce: decodeNonce(sig.sequence),
+    pubkey: decodePubkey(ensure(sig.pubkey)),
+    signature: decodeSignature(ensure(sig.signature)),
+  };
+}
+
+/**** End sigs ******/
+
+export function decodeToken(data: codecImpl.currency.ITokenInfo & Keyed): Token {
+  return {
+    tokenTicker: Encoding.fromAscii(data._id) as TokenTicker,
+    tokenName: ensure(data.name),
+    fractionalDigits: 9, // fixed for all weave tokens
+  };
+}
+
+
+function decodeChainAddressPair(pair: codecImpl.username.IBlockchainAddress): ChainAddressPair {
+  return {
+    chainId: ensure(pair.blockchainId, "blockchainId") as ChainId,
+    address: ensure(pair.address, "address") as Address,
+  };
+}
+
+export function decodeUsernameNft(
+  nft: codecImpl.username.IToken & Keyed,
+  registryChainId: ChainId,
+): BnsUsernameNft {
+  const rawOwnerAddress = ensure(nft.owner, "owner");
+  return {
+    id: fromUtf8(nft._id),
+    owner: encodeBnsAddress(addressPrefix(registryChainId), rawOwnerAddress),
+    targets: ensure(nft.targets, "targets").map(decodeChainAddressPair),
+  };
+}
+
 
 export function decodeCashConfiguration(config: codecImpl.cash.IConfiguration): CashConfiguration {
   const minimalFee = ensure(config.minimalFee, "minimalFee");
